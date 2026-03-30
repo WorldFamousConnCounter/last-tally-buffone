@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Last time Conn got laid</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #0a0a0a;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  .title {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .title h1 {
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+    margin: 0;
+  }
+
+  .title h2 {
+    font-size: 1.5rem;
+    letter-spacing: 6px;
+    margin-top: 10px;
+    opacity: 0.8;
+  }
+
+  .board {
+    display: flex;
+    gap: 15px;
+  }
+
+  .unit {
+    text-align: center;
+  }
+
+  .label {
+    margin-top: 10px;
+    font-size: 0.7rem;
+    opacity: 0.6;
+    letter-spacing: 2px;
+  }
+
+  .digit-group {
+    display: flex;
+  }
+
+  .digit {
+    background: #111;
+    border: 1px solid #333;
+    margin: 2px;
+    width: 40px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .flip {
+    animation: flip 0.4s ease;
+  }
+
+  @keyframes flip {
+    0% { transform: rotateX(0deg); }
+    50% { transform: rotateX(90deg); }
+    100% { transform: rotateX(0deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="title">
+  <h1>LAST TALLY:</h1>
+  <h2>BUFFONE</h2>
+</div>
+
+<div class="board">
+  <div class="unit">
+    <div id="days" class="digit-group"></div>
+    <div class="label">DAYS</div>
+  </div>
+  <div class="unit">
+    <div id="hours" class="digit-group"></div>
+    <div class="label">HOURS</div>
+  </div>
+  <div class="unit">
+    <div id="minutes" class="digit-group"></div>
+    <div class="label">MINUTES</div>
+  </div>
+  <div class="unit">
+    <div id="seconds" class="digit-group"></div>
+    <div class="label">SECONDS</div>
+  </div>
+</div>
+
+<script>
+function getStartDate() {
+  const now = new Date();
+  let year = now.getFullYear();
+  let start = new Date(year, 10, 21);
+
+  if (now < start) {
+    start = new Date(year - 1, 10, 21);
+  }
+  return start;
+}
+
+const startDate = getStartDate();
+
+function renderDigits(containerId, value, length = 2) {
+  const container = document.getElementById(containerId);
+  const str = value.toString().padStart(length, '0');
+
+  if (container.childElementCount === 0) {
+    for (let i = 0; i < str.length; i++) {
+      const d = document.createElement('div');
+      d.className = 'digit';
+      d.innerText = str[i];
+      container.appendChild(d);
+    }
+  } else {
+    [...container.children].forEach((digit, i) => {
+      if (digit.innerText !== str[i]) {
+        digit.innerText = str[i];
+        digit.classList.remove('flip');
+        void digit.offsetWidth; // restart animation
+        digit.classList.add('flip');
+      }
+    });
+  }
+}
+
+function updateClock() {
+  const now = new Date();
+  const diff = now - startDate;
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
+  const minutes = Math.floor(diff / (1000 * 60)) % 60;
+  const seconds = Math.floor(diff / 1000) % 60;
+
+  renderDigits('days', days, 3);
+  renderDigits('hours', hours);
+  renderDigits('minutes', minutes);
+  renderDigits('seconds', seconds);
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+
+</body>
+</html>
